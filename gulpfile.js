@@ -11,6 +11,7 @@ var browserSync = require('browser-sync').create();
 var buildProduction = utilities.env.production;
 var sass = require('gulp-sass');
 var sourcemaps = require('gulp-sourcemaps');
+var babelify = require("babelify");
 var lib = require('bower-files')({
   "overrides":{
     "bootstrap": {
@@ -37,9 +38,12 @@ gulp.task('concatInterface', function() {
 //making all files ready for the browser//
 gulp.task('jsBrowserify', ['concatInterface'], function() {
   return browserify({ entries: ['./tmp/allConcat.js'] })
-    .bundle()
-    .pipe(source('app.js'))
-    .pipe(gulp.dest('./build/js'));
+  .transform(babelify.configure({
+   presets: ["es2015"]
+  }))
+  .bundle()
+  .pipe(source('app.js'))
+  .pipe(gulp.dest('./build/js'));
 });
 //minifying scripts, Browserify must run first - then place in build folder//
 gulp.task("minifyScripts", ["jsBrowserify"], function(){
